@@ -348,11 +348,7 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
   letter-spacing: -0.03em;
   line-height: 1.25;
 }
-.logic-read { border-top: 2px solid var(--ink); }
 .logic-read strong { font-size: 15px; }
-.logic-sound { border-top: 2px solid #3d6484; }
-.logic-motion { border-top: 2px solid #8a5a12; }
-.logic-scent { border-top: 2px solid var(--accent); }
 .logic-scent > em, .logic-also em {
   display: block;
   margin-top: 1px;
@@ -387,8 +383,19 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
   font-weight: 560;
   letter-spacing: 0.06em;
 }
-.logic-hows .is-js { border-left: 2px solid #8a5a12; }
-.logic-hows .is-db { border-left: 2px solid var(--accent); }
+.logic-hows code {
+  display: block;
+  margin: 10px 0 4px;
+  padding: 12px 12px 13px;
+  background: #f3efe8;
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
 .logic-use {
   margin: 6px 0 0;
   color: var(--muted);
@@ -440,6 +447,7 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
   margin-left: calc(100% - (100% - 16px) / 6);
   border-left: 1px solid #c8bfb4;
 }
+.logic-also { border: 2px solid #e21878; }
 .logic-also ul {
   display: flex;
   flex-wrap: wrap;
