@@ -1,6 +1,7 @@
 const works = [
   {
     id: "animal",
+    theme: "children",
     title: "Animal World",
     scent: "Yuzu Blend",
     tags: "Warm · Dreamlike · Imaginary yellow · Bright · Playful",
@@ -19,6 +20,7 @@ const works = [
   },
   {
     id: "season",
+    theme: "children",
     title: "Season",
     scent: "Mineral",
     tags: "Calm · Sad · Wind · Cool · Blue",
@@ -37,6 +39,7 @@ const works = [
   },
   {
     id: "flower",
+    theme: "children",
     title: "Flower Drop",
     scent: "Toffee",
     tags: "Vivid · Simple · Drop · Colorful · Wine",
@@ -55,6 +58,7 @@ const works = [
   },
   {
     id: "home",
+    theme: "children",
     title: "Home",
     scent: "Cedarwood",
     tags: "Flower · Safe · Cloud · Cream · Rainbow",
@@ -73,6 +77,7 @@ const works = [
   },
   {
     id: "dream",
+    theme: "children",
     title: "Dream",
     scent: "Clary Sage",
     tags: "Dark · Fantasy · Animal · Rainbow · Lovely",
@@ -89,6 +94,11 @@ const works = [
       "Translating a dreamlike scene into visual, sonic, and olfactory experiences."
     ]
   }
+];
+
+const themes = [
+  { id: "children", label: "theme1. children" },
+  { id: "geometry", label: "theme2. 기하학" }
 ];
 
 const app = document.querySelector("#app");
@@ -119,7 +129,8 @@ function route() {
     if (on) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
-  if (section === "work" && parts[1]) renderDetail(parts[1]);
+  if (section === "work" && themes.some((theme) => theme.id === parts[1])) renderTheme(parts[1]);
+  else if (section === "work" && parts[1]) renderDetail(parts[1]);
   else if (section === "work") renderWork();
   else if (section === "person") renderPerson();
   else renderProject();
@@ -159,25 +170,43 @@ function renderWork() {
       <div class="work-head">
         <h1>Work</h1>
       </div>
-      <div class="grid">
-        ${works.map((work) => {
-          const found = lookup(work.id);
-          const first = found.matches[0];
-          const name = first ? first.nameEN : work.scent;
-          return `
-          <a class="card" href="#/work/${work.id}">
-            <figure><img src="${work.image}" alt="${esc(work.title)} 원본 그림" /></figure>
-            <div class="card-meta">
-              <div class="scent">${esc(name)}</div>
-              <h2>${esc(work.title)}</h2>
-              <p>${esc(found.tags.join(" · "))}</p>
-            </div>
-          </a>`;
-        }).join("")}
-      </div>
+      <nav class="themes" aria-label="테마">
+        ${themes.map((theme) => `<a href="#/work/${theme.id}">${esc(theme.label)}</a>`).join("")}
+      </nav>
     </section>
     ${siteFoot()}
   `;
+}
+
+function renderTheme(id) {
+  const theme = themes.find((item) => item.id === id);
+  const list = works.filter((work) => work.theme === id);
+  document.title = `${theme.label} — Sensory Studio`;
+  app.innerHTML = `
+    <section class="work">
+      <div class="work-head">
+        <a class="back" href="#/work">← Work</a>
+        <h1>${esc(theme.label)}</h1>
+      </div>
+      ${list.length ? `<div class="grid">${list.map(workCard).join("")}</div>` : `<p class="theme-empty">아직 올린 작품이 없다.</p>`}
+    </section>
+    ${siteFoot()}
+  `;
+}
+
+function workCard(work) {
+  const found = lookup(work.id);
+  const first = found.matches[0];
+  const name = first ? first.nameEN : work.scent;
+  return `
+    <a class="card" href="#/work/${work.id}">
+      <figure><img src="${work.image}" alt="${esc(work.title)} 원본 그림" /></figure>
+      <div class="card-meta">
+        <div class="scent">${esc(name)}</div>
+        <h2>${esc(work.title)}</h2>
+        <p>${esc(found.tags.join(" · "))}</p>
+      </div>
+    </a>`;
 }
 
 function renderDetail(id) {
@@ -192,7 +221,7 @@ function renderDetail(id) {
   app.innerHTML = `
     <article class="detail">
       <div>
-        <a class="back" href="#/work">← Work</a>
+        <a class="back" href="#/work/${work.theme || "children"}">← ${esc(themes.find((theme) => theme.id === work.theme)?.label || "Work")}</a>
         <p class="scent-name">${esc(first ? first.nameEN : work.scent)}<span class="scent-note">향 Olfactory</span></p>
         <h1>${esc(work.title)}</h1>
         <p class="tags">${esc(found.tags.join(" · "))}<span class="tag-note">감각 키워드</span></p>

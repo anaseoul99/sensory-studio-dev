@@ -173,6 +173,11 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
 .work-head { max-width: 40em; margin-bottom: 22px; }
 .work-head h1 { margin: 0 0 8px; font-size: 1.6rem; font-weight: 560; letter-spacing: -0.03em; }
 .work-head p { margin: 0; color: var(--muted); }
+.work-head .back { display: inline-block; margin-bottom: 10px; }
+.themes { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.themes a { font-size: 1.45rem; font-weight: 560; letter-spacing: -0.03em; }
+.themes a:hover { color: var(--accent); }
+.theme-empty { margin: 8px 0 0; color: var(--muted); }
 
 .grid {
   display: grid;
