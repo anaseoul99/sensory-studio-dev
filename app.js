@@ -116,16 +116,62 @@ function esc(value) {
     .replaceAll(">", "&gt;");
 }
 
-function logicMap(work, scent) {
-  const rows = [
-    ["소리", work.track],
-    ["움직임", "p5.js"],
-    ["향", scent]
-  ];
+function logicMap(work, found) {
+  const matches = found.matches || [];
+  const first = matches[0];
+  const scentName = first ? first.nameEN : work.scent;
+  const category = first && first.category ? first.category : "";
+  const tags = found.tags && found.tags.length ? found.tags : String(work.tags || "").split(" · ").filter(Boolean);
+  const seen = new Set();
+  const also = [];
+  matches.slice(1).forEach((match) => {
+    if (!match || !match.nameEN || match.nameEN === scentName || seen.has(match.nameEN)) return;
+    seen.add(match.nameEN);
+    also.push(match);
+  });
+  const alsoBlock = also.length ? `
+    <div class="logic-join" aria-hidden="true"></div>
+    <div class="logic-node logic-also">
+      <span>같이 나온</span>
+      <p class="logic-use">같은 키워드 검색에서 뒤에 걸린 기록</p>
+      <ul>
+        ${also.map((match) => `<li><b>${esc(match.nameEN)}</b><em>${esc(match.category || "")}</em></li>`).join("")}
+      </ul>
+    </div>` : "";
   return `
-    <div class="logic">
-      <p class="logic-from">${esc(work.read)}</p>
-      ${rows.map(([name, value]) => `<p><i>${esc(name)}</i><b>${esc(value)}</b></p>`).join("")}
+    <div class="logic" aria-label="감각 변환">
+      <div class="logic-node logic-read">
+        <span>그림</span>
+        <strong>${esc(work.read)}</strong>
+      </div>
+      <div class="logic-stem" aria-hidden="true"></div>
+      <div class="logic-node">
+        <span>키워드</span>
+        <div class="logic-chips">${tags.map((tag) => `<i>${esc(tag)}</i>`).join("")}</div>
+      </div>
+      <div class="logic-rail" aria-hidden="true"></div>
+      <div class="logic-outs">
+        <div class="logic-node logic-sound">
+          <span>소리</span>
+          <strong>${esc(work.track)}</strong>
+        </div>
+        <div class="logic-node logic-motion">
+          <span>움직임</span>
+          <strong>p5.js</strong>
+          <b class="logic-tool">JavaScript</b>
+        </div>
+        <div class="logic-node logic-scent">
+          <span>향</span>
+          <strong>${esc(scentName)}</strong>
+          ${category ? `<em>${esc(category)}</em>` : ""}
+          <b class="logic-tool">데이터베이스</b>
+        </div>
+      </div>
+      <div class="logic-hows">
+        <p class="is-js"><b>JavaScript</b>p5.js로 움직임을 만든다. 화면을 클릭하면 움직이고 곡이 나온다. 다시 클릭하면 멈춘다.</p>
+        <p class="is-db"><b>데이터베이스</b>Airtable에서 키워드로 향 기록을 찾는다. JavaScript로 조회하고, 처음 걸린 향을 붙인다.</p>
+      </div>
+      ${alsoBlock}
     </div>`;
 }
 
@@ -243,7 +289,7 @@ function renderDetail(id) {
         <p class="scent-name">${esc(first ? first.nameEN : work.scent)}<span class="scent-note">향 Olfactory</span></p>
         <h1>${esc(work.title)}</h1>
         <p class="tags">${esc(found.tags.join(" · "))}<span class="tag-note">감각 키워드</span></p>
-        ${logicMap(work, first ? first.nameEN : work.scent)}
+        ${logicMap(work, found)}
         <div class="process">
           <div class="tech-grid">
             <button class="tech-item" type="button" data-step="js">${iconJs()}<span>JavaScript</span></button>
