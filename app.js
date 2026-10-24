@@ -97,8 +97,8 @@ const works = [
 ];
 
 const themes = [
-  { id: "children", label: "theme1. children" },
-  { id: "geometry", label: "theme2. 기하학" }
+  { id: "children", label: "어린이" },
+  { id: "geometry", label: "기하학" }
 ];
 
 const app = document.querySelector("#app");
