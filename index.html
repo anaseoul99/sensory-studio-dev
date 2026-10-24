@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=63" />
+  <link rel="stylesheet" href="styles.css?v=64" />
 </head>
 <body>
   <header class="top">
@@ -37,7 +37,13 @@
     </a>
     <nav class="nav" aria-label="섹션">
       <a href="#/" data-nav="project">Project</a>
-      <a href="#/work" data-nav="work">Work</a>
+      <div class="nav-work">
+        <a href="#/work" data-nav="work">Work</a>
+        <div class="nav-themes">
+          <a href="#/work/children">theme1. children</a>
+          <a href="#/work/geometry">theme2. 기하학</a>
+        </div>
+      </div>
       <a href="#/person" data-nav="person">Person</a>
     </nav>
   </header>

@@ -47,8 +47,29 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .brand-mark { display: block; width: 18px; height: 16px; flex: 0 0 auto; }
 body[data-page="person"] .brand { color: #f4f1ea; }
-.nav { display: flex; gap: 18px; font-size: 15px; }
+.nav { display: flex; align-items: center; gap: 18px; font-size: 15px; }
 .nav a[aria-current="page"] { color: var(--accent); }
+.nav-work { position: relative; }
+.nav-themes {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.nav-themes a { font-size: 14px; white-space: nowrap; }
+.nav-themes a:hover { color: var(--accent); }
+@media (hover: hover) {
+  .nav-work:hover .nav-themes,
+  .nav-work:focus-within .nav-themes { opacity: 1; pointer-events: auto; }
+}
 
 body[data-page="work"],
 body[data-page="person"] {
