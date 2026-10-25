@@ -241,9 +241,6 @@ function renderWork() {
   document.title = "Work — Sensory Studio";
   app.innerHTML = `
     <section class="work">
-      <div class="work-head">
-        <h1>Work</h1>
-      </div>
       <nav class="themes" aria-label="테마">
         ${themes.map((theme) => `<a href="#/work/${theme.id}">${esc(theme.label)}</a>`).join("")}
       </nav>
