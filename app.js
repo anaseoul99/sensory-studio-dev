@@ -359,22 +359,26 @@ function ratioSheet(sheet) {
   const { left, right, top, bottom } = sheet.margins;
   const w = 210 - left - right;
   const h = 297 - top - bottom;
-  const empty = (1 - (w * h) / (210 * 297)) * 100;
+  const empty = sheet.empty != null ? sheet.empty : (1 - (w * h) / (210 * 297)) * 100;
   const rows = sheet.points.map(([x, y], index) => `
     <tr><td>${index + 1}</td><td>${mm1(x)}</td><td>${mm1(y)}</td></tr>`).join("");
   const marks = sheet.points.map(([x, y]) => {
     const s = 3.4;
     return `<path d="M${x - s} ${y} H${x + s} M${x} ${y - s} V${y + s}" fill="none" stroke="#e21878" stroke-width="1.35" />`;
   }).join("");
+  const frame = sheet.lines
+    || `<rect x="${left}" y="${top}" width="${w}" height="${h}" fill="none" stroke="#5f5a54" stroke-width="0.6" />`;
+  const meta = sheet.meta
+    || `위 ${mm1(top)} · 오른쪽 ${mm1(right)} · 아래 ${mm1(bottom)} · 왼쪽 ${mm1(left)} mm<br />안쪽 ${mm1(w)} × ${mm1(h)} mm · 빈 면적 ${empty.toFixed(1)}%`;
   return `
     <figure class="ratio-sheet">
       <figcaption>${sheet.title}</figcaption>
       <svg viewBox="-8 -8 226 313" role="img" aria-label="${sheet.title} A4 여백. ${sheet.rule}">
         <rect x="0" y="0" width="210" height="297" fill="#fff" stroke="#171717" stroke-width="1.2" />
-        <rect x="${left}" y="${top}" width="${w}" height="${h}" fill="none" stroke="#5f5a54" stroke-width="0.6" />
+        ${frame}
         ${marks}
       </svg>
-      <p class="ratio-meta">${sheet.rule}<br />위 ${mm1(top)} · 오른쪽 ${mm1(right)} · 아래 ${mm1(bottom)} · 왼쪽 ${mm1(left)} mm<br />안쪽 ${mm1(w)} × ${mm1(h)} mm · 빈 면적 ${empty.toFixed(1)}%</p>
+      <p class="ratio-meta">${sheet.rule}<br />${meta}</p>
       <table class="point-table">
         <thead><tr><th>+</th><th>x</th><th>y</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -487,6 +491,36 @@ function renderGolden() {
     x + shiftX + (index === twist ? sign * shiftY : 0),
     y + shiftY,
   ]);
+  const na = { left: 210 / 6, right: 210 / 6, top: 297 / 6, bottom: 297 / 8 };
+  const south = 210 / 12;
+  const mid = 210 / 5;
+  const eu = { left: 210 / 9, right: (2 * 210) / 9, top: 297 / 9, bottom: (2 * 297) / 9 };
+  const cn = { left: 210 / 10, right: 210 / 10, top: 297 / 4, bottom: 297 / 8 };
+  const africaGap = 14;
+  const africaCols = 3;
+  const africaRows = 4;
+  const unitW = (210 - (africaCols - 1) * africaGap) / africaCols;
+  const unitH = (297 - (africaRows - 1) * africaGap) / africaRows;
+  const africaLines = Array.from({ length: africaRows * africaCols }, (_, index) => {
+    const col = index % africaCols;
+    const row = Math.floor(index / africaCols);
+    const x = col * (unitW + africaGap);
+    const y = row * (unitH + africaGap);
+    return `<rect x="${x}" y="${y}" width="${unitW}" height="${unitH}" fill="none" stroke="#5f5a54" stroke-width="0.6" />`;
+  }).join("");
+  const gapX = [1, 2].map((col) => col * unitW + (col - 0.5) * africaGap);
+  const gapY = [1, 2, 3].map((row) => row * unitH + (row - 0.5) * africaGap);
+  const africaEmpty = (1 - (africaCols * africaRows * unitW * unitH) / (210 * 297)) * 100;
+  const box = (margins) => {
+    const width = 210 - margins.left - margins.right;
+    const height = 297 - margins.top - margins.bottom;
+    return [
+      [margins.left, margins.top],
+      [margins.left + width, margins.top],
+      [margins.left + width, margins.top + height],
+      [margins.left, margins.top + height],
+    ];
+  };
   const sheets = [
     {
       title: "북유럽",
@@ -495,16 +529,61 @@ function renderGolden() {
       points: nordic,
     },
     {
-      title: "일본",
-      rule: "위·왼쪽은 a, 오른쪽·아래는 aφ. + 다섯은 눈금 16개 중에서 겹치지 않게 고른다.",
-      margins: { top: a, right: far, bottom: far, left: a },
-      points: japan,
+      title: "북아메리카",
+      rule: "좌우는 W/6, 위는 H/6, 아래는 H/8. + 네 개는 안쪽 모서리, 다섯은 그리드가 시작하는 칸.",
+      margins: na,
+      points: [...box(na), [na.left * 2, na.top + na.bottom]],
+    },
+    {
+      title: "남미",
+      rule: "네 변을 W/12로 좁게 둔다. + 네 개는 안쪽 모서리, 다섯은 위쪽 테두리.",
+      margins: { top: south, right: south, bottom: south, left: south },
+      points: [...box({ top: south, right: south, bottom: south, left: south }), [105, south / 2]],
+    },
+    {
+      title: "중동",
+      rule: "네 변 W/5가 틀이다. 가운데는 비운다. + 네 개는 안쪽 모서리, 다섯은 오른쪽 틀.",
+      margins: { top: mid, right: mid, bottom: mid, left: mid },
+      points: [...box({ top: mid, right: mid, bottom: mid, left: mid }), [210 - mid / 2, 148.5]],
+    },
+    {
+      title: "아프리카",
+      rule: "단위가 용지 끝까지 간다. + 다섯은 단위와 단위 사이 간격에 있다.",
+      margins: { top: 0, right: 0, bottom: 0, left: 0 },
+      lines: africaLines,
+      empty: africaEmpty,
+      meta: `간격 ${mm1(africaGap)} mm · 단위 ${mm1(unitW)} × ${mm1(unitH)} mm · 빈 면적 ${africaEmpty.toFixed(1)}%`,
+      points: [
+        [gapX[0], gapY[0]],
+        [gapX[1], gapY[0]],
+        [gapX[1], gapY[1]],
+        [gapX[0], gapY[1]],
+        [gapX[0], gapY[2]],
+      ],
+    },
+    {
+      title: "유럽",
+      rule: "안쪽 W/9, 위 H/9, 바깥 2W/9, 아래 2H/9. + 네 개는 안쪽 모서리, 다섯은 글 덩어리의 중심.",
+      margins: eu,
+      points: [...box(eu), [eu.left + (210 - eu.left - eu.right) / 2, eu.top + (297 - eu.top - eu.bottom) / 2]],
     },
     {
       title: "한국",
       rule: "일본에서 고른 점을 오른쪽 a/φ, 아래 a/φ²만큼 옮긴다. 그중 하나만 가로로 더 비튼다.",
       margins: { top: a + shiftY, right: far - shiftX, bottom: far - shiftY, left: a + shiftX },
       points: korea,
+    },
+    {
+      title: "일본",
+      rule: "위·왼쪽은 a, 오른쪽·아래는 aφ. + 다섯은 눈금 16개 중에서 겹치지 않게 고른다.",
+      margins: { top: a, right: far, bottom: far, left: a },
+      points: japan,
+    },
+    {
+      title: "중국",
+      rule: "좌우 W/10, 위 H/4, 아래 H/8. + 네 개는 안쪽 모서리, 다섯은 위쪽 빈 면.",
+      margins: cn,
+      points: [...box(cn), [105, cn.top / 2]],
     },
   ];
   document.title = "황금비율 — Sensory Studio";
@@ -528,7 +607,7 @@ function renderGolden() {
         <span class="post-pass-note"></span>
       </form>
       <div class="post-body">
-      <p>A4(210 × 297 mm)에 여백을 두는 계산이다. 북유럽은 네 변이 같은 큰 여백, 일본은 황금비로 맞춘 여백, 한국은 그 안쪽을 같은 크기로 두고 한 칸 비튼다. 매장이나 고서에서 잰 치수가 아니라, 기하 작업을 위해 각 원칙을 한 장에 적용한 모형이다. 원점은 용지 왼쪽 위이고, 단위는 mm다.</p>
+      <p>A4(210 × 297 mm)에 여백을 두는 계산이다. 북유럽은 네 변이 같은 큰 여백, 일본은 황금비로 맞춘 여백, 한국은 그 안쪽을 같은 크기로 두고 한 칸 비튼다. 북아메리카, 남미, 중동, 아프리카, 유럽, 중국도 같은 용지에 여백 모형과 + 다섯 개를 그렸다. 매장이나 고서에서 잰 치수가 아니라, 기하 작업을 위해 각 원칙을 한 장에 적용한 모형이다. 원점은 용지 왼쪽 위이고, 단위는 mm다. φ는 일본과 한국에만 쓴다.</p>
       <div class="ratio-grid">
         ${sheets.map(ratioSheet).join("")}
       </div>
