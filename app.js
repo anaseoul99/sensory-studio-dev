@@ -98,6 +98,26 @@ const works = [
       "하나의 환상적인 이미지가 소리와 움직임, 향과 결합할 때 꿈의 분위기와 상상 속 장면이 어떻게 새로운 감각적 경험으로 확장되는지 탐색한다.",
       "Translating a dreamlike scene into visual, sonic, and olfactory experiences."
     ]
+  },
+  {
+    id: "circle",
+    theme: "geometry",
+    title: "Circle",
+    scent: "Hinoki",
+    tags: "Still · Round · Clear · Quiet · Wide",
+    image: "images/circle.svg?v=2",
+    sketch: "sketches/circle.html?v=2",
+    track: "Quiet Room",
+    artist: "Sensory Studio",
+    soundTags: "Still, Quiet",
+    read: "비어 있는 원",
+    copy: "넓은 흰 면 위에 원과 타원이 하나씩 놓인다. 고요하고 맑은 형태를 히노키 향으로 옮긴다.",
+    note: [
+      "넓은(Wide) 흰 면 위에 선 하나로 그린 원(Round)이 가만히(Still) 있다. 옆의 타원은 같은 고요함(Quiet) 안에서 조금 눌린 형태이고, 여백이 커서 선이 맑게(Clear) 남는다.",
+      "형태와 여백에서 뽑은 키워드로 잔잔한 곡을 고르고, p5.js에서 클릭하면 원이 천천히 늘었다 줄어들게 했다. 키워드를 향 데이터와 맞춰 맑고 나무 같은 Hinoki를 붙였다.",
+      "단순한 도형이 소리와 향을 통과할 때, 비어 있는 면이 어떻게 감각으로 바뀌는지 보는 예시이다.",
+      "Translating a circle and an ellipse into visual, sonic, and olfactory experiences."
+    ]
   }
 ];
 
@@ -179,6 +199,7 @@ rotate(
 );
 tint(255, map(treble, 0, 255, 180, 255));</code></p>
         <p class="is-db"><b>DB</b>추출한 시각 키워드와 DB 내 향료 메타데이터(FrDesc)를 정규표현식(Regex)으로 매칭한다.<code>${esc(formula)}</code>겹치는 키워드가 많거나 그림에서 비중이 큰 단어를 고르고, 비슷하면 무작위로 고른다.</p>
+        ${work.id === "circle" ? `<p class="is-ref"><b>참조</b><a href="#/reference/golden">황금비율</a></p>` : ""}
       </div>
       ${alsoBlock}
     </div>`;
@@ -195,17 +216,25 @@ function hits(tags, frDesc) {
 
 function route() {
   window.clearInterval(typeDetailLogic.timer);
+  document.body.classList.remove("is-editing");
   const parts = (location.hash.replace(/^#/, "") || "/").split("/").filter(Boolean);
   const section = parts[0] || "project";
-  document.body.dataset.page = section === "person" ? "person" : section === "work" ? "work" : "project";
+  const page = section === "person" || section === "work" || section === "reference" ? section : "project";
+  document.body.dataset.page = page;
+  const themeWork = section === "work" && parts[1] ? works.find((item) => item.id === parts[1]) : null;
+  const themeId = themes.some((theme) => theme.id === parts[1]) ? parts[1] : themeWork ? themeWork.theme : "";
+  if (themeId) document.body.dataset.theme = themeId;
+  else delete document.body.dataset.theme;
   document.querySelectorAll("[data-nav]").forEach((link) => {
-    const on = link.dataset.nav === (section === "work" ? "work" : section === "person" ? "person" : "project");
-    if (on) link.setAttribute("aria-current", "page");
+    if (link.dataset.nav === page) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
   if (section === "work" && themes.some((theme) => theme.id === parts[1])) renderTheme(parts[1]);
   else if (section === "work" && parts[1]) renderDetail(parts[1]);
   else if (section === "work") renderWork();
+  else if (section === "reference" && parts[1] === "golden") renderGolden();
+  else if (section === "reference" && parts[1] === "irrational") renderIrrational();
+  else if (section === "reference") renderReference();
   else if (section === "person") renderPerson();
   else renderProject();
   window.scrollTo(0, 0);
@@ -282,6 +311,372 @@ function workCard(work) {
     </a>`;
 }
 
+const POST_PASS = "1111";
+const POST_KEY = "sensory-post-golden";
+const IRRATIONAL_KEY = "sensory-post-irrational";
+
+function postStore(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function renderReference() {
+  const saved = postStore(POST_KEY);
+  const irrational = postStore(IRRATIONAL_KEY);
+  const title = saved?.title || "황금비율";
+  const irrationalTitle = irrational?.title || "무리수에 관하여";
+  document.title = "Reference — Sensory Studio";
+  app.innerHTML = `
+    <section class="board-page">
+      <table class="board">
+        <thead>
+          <tr><th>번호</th><th>제목</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#/reference/golden">${esc(title)}</a></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#/reference/irrational">${esc(irrationalTitle)}</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    ${siteFoot()}
+  `;
+}
+
+function mm1(n) {
+  return (Math.round(n * 10) / 10).toFixed(1);
+}
+
+function ratioSheet(sheet) {
+  const { left, right, top, bottom } = sheet.margins;
+  const w = 210 - left - right;
+  const h = 297 - top - bottom;
+  const empty = (1 - (w * h) / (210 * 297)) * 100;
+  const rows = sheet.points.map(([x, y], index) => `
+    <tr><td>${index + 1}</td><td>${mm1(x)}</td><td>${mm1(y)}</td></tr>`).join("");
+  const marks = sheet.points.map(([x, y]) => {
+    const s = 3.4;
+    return `<path d="M${x - s} ${y} H${x + s} M${x} ${y - s} V${y + s}" fill="none" stroke="#e21878" stroke-width="1.35" />`;
+  }).join("");
+  return `
+    <figure class="ratio-sheet">
+      <figcaption>${sheet.title}</figcaption>
+      <svg viewBox="-8 -8 226 313" role="img" aria-label="${sheet.title} A4 여백. ${sheet.rule}">
+        <rect x="0" y="0" width="210" height="297" fill="#fff" stroke="#171717" stroke-width="1.2" />
+        <rect x="${left}" y="${top}" width="${w}" height="${h}" fill="none" stroke="#5f5a54" stroke-width="0.6" />
+        ${marks}
+      </svg>
+      <p class="ratio-meta">${sheet.rule}<br />위 ${mm1(top)} · 오른쪽 ${mm1(right)} · 아래 ${mm1(bottom)} · 왼쪽 ${mm1(left)} mm<br />안쪽 ${mm1(w)} × ${mm1(h)} mm · 빈 면적 ${empty.toFixed(1)}%</p>
+      <table class="point-table">
+        <thead><tr><th>+</th><th>x</th><th>y</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </figure>`;
+}
+
+function irrationalLine() {
+  const left = 36;
+  const right = 584;
+  const span = right - left;
+  const at = (value, start, end) => left + ((value - start) / (end - start)) * span;
+  const tick = (x, y, label, major) => `
+    <line x1="${x}" y1="${y - (major ? 14 : 8)}" x2="${x}" y2="${y}" stroke="#171717" stroke-width="${major ? 1.3 : 0.8}" />
+    ${label ? `<text x="${x}" y="${y + 16}" text-anchor="middle" fill="#171717" font-size="11" font-family="Instrument Sans, sans-serif">${label}</text>` : ""}`;
+  const arrow = (x, y1, y2) => `
+    <line x1="${x}" y1="${y1}" x2="${x}" y2="${y2 - 5}" stroke="#e21878" stroke-width="1.4" />
+    <path d="M${x - 4.5} ${y2 - 6} L${x} ${y2} L${x + 4.5} ${y2 - 6}" fill="none" stroke="#e21878" stroke-width="1.4" stroke-linejoin="round" />
+    <text x="${x + 8}" y="${(y1 + y2) / 2 + 4}" fill="#e21878" font-size="12" font-family="Instrument Sans, sans-serif">확대</text>`;
+  const row = (y, start, end, step, labels) => {
+    const marks = [];
+    for (let n = start; n <= end + step / 2; n += step) {
+      const value = Math.round(n * 1000) / 1000;
+      const major = labels.includes(value);
+      marks.push(tick(at(value, start, end), y, major ? String(value) : "", major));
+    }
+    return `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#171717" stroke-width="1.2" />${marks.join("")}`;
+  };
+  const y1 = 28;
+  const y2 = 118;
+  const y3 = 208;
+  const between = (a, b, start, end) => (at(a, start, end) + at(b, start, end)) / 2;
+  return `
+    <figure class="number-line">
+      <svg viewBox="0 0 620 250" role="img" aria-label="1부터 4, 그 사이 1과 2의 확대, 다시 1.1과 1.2의 확대">
+        ${row(y1, 1, 4, 1, [1, 2, 3, 4])}
+        ${arrow(between(1, 2, 1, 4), y1 + 22, y2 - 22)}
+        ${row(y2, 1, 2, 0.1, [1, 1.1, 1.2, 2])}
+        ${arrow(between(1.1, 1.2, 1, 2), y2 + 22, y3 - 22)}
+        ${row(y3, 1.1, 1.2, 0.01, [1.1, 1.11, 1.12, 1.13, 1.2])}
+      </svg>
+    </figure>`;
+}
+
+function renderIrrational() {
+  document.title = "무리수에 관하여 — Sensory Studio";
+  app.innerHTML = `
+    <article class="post post-ratio">
+      <a class="back" href="#/reference">목록</a>
+      <div class="post-head">
+        <h1>무리수에 관하여</h1>
+        <span class="post-by">관리자</span>
+        <button type="button" class="edit-pen" aria-label="수정">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13 7l4 4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+        </button>
+      </div>
+      <div class="edit-bar" hidden>
+        <button type="button" class="edit-cancel">취소</button>
+        <button type="button" class="edit-save">저장</button>
+      </div>
+      <form class="post-pass" hidden>
+        <input type="password" autocomplete="current-password" aria-label="비밀번호" />
+        <button type="submit">확인</button>
+        <span class="post-pass-note"></span>
+      </form>
+      <div class="post-body">
+        <p>그래프에 1, 2, 3, 4가 있다. 사람이 세워 둔 눈금이다. 하나 다음이 둘이라는 약속으로 칸을 만들었다.</p>
+        ${irrationalLine()}
+        <p>1과 2 사이를 열면 1.1, 1.2, 1.3이 들어온다. 그 사이를 다시 열면 1.11, 1.12처럼 더 잘게 나뉜다. 쪼개기를 반복하면 소수점 자리는 길어지고, 눈금은 더 촘촘해진다.</p>
+        <p>그러다 어느 칸에도 정확히 앉지 않는 수가 나온다. √2는 1과 2 사이, 1.4와 1.5 사이에 있다. 1.41421356…으로 이어지고 끝이 없다. 눈금을 백 자리로 쪼개도 그 수는 칸의 경계에 안착하지 않는다. 더 이상 나눠서 보여줄 수 없는, 보이지 않는 수다.</p>
+        <p>1과 2는 사람이 만든 것이다. 세고, 이름을 붙이고, 사이를 규칙으로 닫아 두었다. 그런데 그 규칙을 스스로 더 잘게 적용하는 순간, 규칙으로 끝나지 않는 수가 나타난다. 만들어 둔 칸이 칸을 배신한다. 사람이 세워 둔 정수 사이에서, 정수가 감당하지 못하는 수가 나온다. 그게 아이러니다.</p>
+        <p>무리수만 봐도 알 수 있는 것이 있다. 수 체계를 인간이 만든 것이 아니라는 점이다. 1과 2의 이름은 사람이 붙였다. 그 사이를 아무리 쪼개도 끝나지 않는 법칙은, 붙이기 전에 이미 놓여 있었다. 누가 놓았든, 적어도 사람은 아니다.</p>
+        <p>루트는, 말이나 표정이나 감각이나 언어로 다 옮길 수 없는 것을 인간이 그나마 적절히 적으려고 만든 기호다. 루트를 보는 순간, 눈금을 쪼개도 끝나지 않는다는 것, 그 법칙은 사람이 붙이기 전에 있었다는 것, 그래서 누가 놓았든 사람은 아니라는 것이 머릿속을 1초 만에 지나가야 한다. 그 속도가 되어야, 이 세상을 만든 누군가를 이해할 수 있는 것이 아닌가.</p>
+      </div>
+    </article>
+    ${siteFoot()}
+  `;
+  const saved = postStore(IRRATIONAL_KEY);
+  const title = app.querySelector(".post-head h1");
+  const body = app.querySelector(".post-body");
+  if (saved?.title) title.textContent = saved.title;
+  if (saved?.body) body.innerHTML = saved.body;
+  document.title = `${title.textContent} — Sensory Studio`;
+  bindPostEdit(IRRATIONAL_KEY, "무리수에 관하여");
+}
+
+function renderGolden() {
+  const phi = (1 + Math.sqrt(5)) / 2;
+  const a = 210 - 297 / phi;
+  const far = a * phi;
+  const cw = 210 - a - far;
+  const ch = 297 - a - far;
+  const shiftX = a / phi;
+  const shiftY = a / phi ** 2;
+  const m = 52.5;
+  const nordic = Array.from({ length: 5 }, () => [
+    m + Math.random() * (210 - 2 * m),
+    m + Math.random() * (297 - 2 * m),
+  ]);
+  const steps = [0, 1 / phi ** 2, 1 / phi, 1];
+  const grid = steps.flatMap((u) => steps.map((v) => [a + cw * u, a + ch * v]));
+  for (let i = grid.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [grid[i], grid[j]] = [grid[j], grid[i]];
+  }
+  const japan = grid.slice(0, 5);
+  const twist = Math.floor(Math.random() * japan.length);
+  const sign = Math.random() < 0.5 ? 1 : -1;
+  const korea = japan.map(([x, y], index) => [
+    x + shiftX + (index === twist ? sign * shiftY : 0),
+    y + shiftY,
+  ]);
+  const sheets = [
+    {
+      title: "북유럽",
+      rule: "짧은 변의 1/4을 네 변에 같은 여백으로 둔다. + 다섯은 그 안쪽에서 고른다.",
+      margins: { top: 52.5, right: 52.5, bottom: 52.5, left: 52.5 },
+      points: nordic,
+    },
+    {
+      title: "일본",
+      rule: "위·왼쪽은 a, 오른쪽·아래는 aφ. + 다섯은 눈금 16개 중에서 겹치지 않게 고른다.",
+      margins: { top: a, right: far, bottom: far, left: a },
+      points: japan,
+    },
+    {
+      title: "한국",
+      rule: "일본에서 고른 점을 오른쪽 a/φ, 아래 a/φ²만큼 옮긴다. 그중 하나만 가로로 더 비튼다.",
+      margins: { top: a + shiftY, right: far - shiftX, bottom: far - shiftY, left: a + shiftX },
+      points: korea,
+    },
+  ];
+  document.title = "황금비율 — Sensory Studio";
+  app.innerHTML = `
+    <article class="post post-ratio">
+      <a class="back" href="#/reference">목록</a>
+      <div class="post-head">
+        <h1>황금비율</h1>
+        <span class="post-by">관리자</span>
+        <button type="button" class="edit-pen" aria-label="수정">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13 7l4 4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+        </button>
+      </div>
+      <div class="edit-bar" hidden>
+        <button type="button" class="edit-cancel">취소</button>
+        <button type="button" class="edit-save">저장</button>
+      </div>
+      <form class="post-pass" hidden>
+        <input type="password" autocomplete="current-password" aria-label="비밀번호" />
+        <button type="submit">확인</button>
+        <span class="post-pass-note"></span>
+      </form>
+      <div class="post-body">
+      <p>A4(210 × 297 mm)에 여백을 두는 계산이다. 북유럽은 네 변이 같은 큰 여백, 일본은 황금비로 맞춘 여백, 한국은 그 안쪽을 같은 크기로 두고 한 칸 비튼다. 매장이나 고서에서 잰 치수가 아니라, 기하 작업을 위해 각 원칙을 한 장에 적용한 모형이다. 원점은 용지 왼쪽 위이고, 단위는 mm다.</p>
+      <div class="ratio-grid">
+        ${sheets.map(ratioSheet).join("")}
+      </div>
+      <h2>위치 계산식</h2>
+      <p>W = 210, H = 297, φ = (1 + √5) / 2 ≈ 1.618. 그림의 +는 이 계산으로 고른 다섯 점이고, 글을 다시 열면 자리가 바뀐다.</p>
+      <p>북유럽. 네 변의 여백이 같다. m = 52.5. 기준점 5는 안쪽의 중심이다.</p>
+      <pre class="formula">m = W / 4
+안쪽 왼쪽 위 = (m, m)
+안쪽 크기 = (W − 2m, H − 2m) = (105, 192)
+기준점 5 = (W / 2, H / 2) = (105, 148.5)
+
+작업 중 점
+x = m + u (W − 2m)
+y = m + v (H − 2m)
+u, v는 0 이상 1 미만의 난수. +는 52.5 mm 여백 밖에 나가지 않는다.</pre>
+      <p>일본. 짧은 여백 a = 26.4, 긴 여백 aφ = 42.8. 안쪽 140.8 × 227.8의 세로÷가로는 φ다. 기준점 5는 안쪽 왼쪽 위에서 가로·세로의 1/φ 지점이다.</p>
+      <pre class="formula">a = W − H / φ
+왼쪽 = 위 = a
+오른쪽 = 아래 = aφ
+안쪽 왼쪽 위 (x0, y0) = (a, a)
+cw = W − a(1 + φ)
+ch = H − a(1 + φ)
+기준점 5 = (x0 + cw / φ, y0 + ch / φ)
+
+작업 중 눈금
+x = x0 + cw · {0, 1/φ², 1/φ, 1}
+y = y0 + ch · {0, 1/φ², 1/φ, 1}
+교차점 16개 중에서 겹치지 않게 5개를 고른다.</pre>
+      <p>한국. 일본에서 고른 (x, y)를 옮긴다. 이동량은 가로 a/φ = 16.3, 세로 a/φ² = 10.1이다. 안쪽 크기와 빈 면적은 일본과 같다. 그림의 다섯 점은 기준점을 그 거리만큼만 옮긴 자리다.</p>
+      <pre class="formula">x′ = x + a / φ
+y′ = y + a / φ²
+
+작업 중, 다섯 개 중 하나만 가로로 더 비튼다. s는 +1 또는 −1.
+x′ = x + a / φ + s · a / φ²
+y′ = y + a / φ²</pre>
+      <h2>근거</h2>
+      <p>φ는 (a + b) / a = a / b 를 만족하는 양의 해다. 전체를 긴 쪽에 나눈 비가, 긴 쪽을 짧은 쪽에 나눈 비와 같다. 정리하면 φ² = φ + 1 이고, 해는 약 1.618이다. 유클리드 『원론』 6권의 외중비가 이 관계다. 황금 사각형에서 한 변 길이의 정사각형을 빼면 남은 사각형이 다시 같은 비다. A4 자체는 황금비가 아니다. 210 : 297은 √2라서 반으로 접어도 비율이 유지된다. φ를 쓰는 곳은 일본과 한국의 여백과 그 안쪽뿐이다. 파르테논이나 일본 건축이 이 여백을 재서 썼다는 근거는 없다.</p>
+      <h2>계산식</h2>
+      <p>긴 부분을 a, 짧은 부분을 b라고 하면 (a + b) / a = a / b = φ다. a / b = φ로 두면 φ² = φ + 1이 되고, 양수 해는 φ = (1 + √5) / 2 ≈ 1.6180339887…이다. 같은 관계를 φ = 1 + 1/φ로도 쓴다.</p>
+      <p>피보나치 수열 1, 1, 2, 3, 5, 8, 13, 21, …에서 이웃한 두 수의 비는 뒤로 갈수록 이 값에 가까워진다. 21/13 ≈ 1.615, 89/55 ≈ 1.618이다. 황금 직사각형에서 정사각형을 잘라내면 남은 직사각형이 다시 같은 비율이다. 이 자기유사성이 황금비의 핵심 성질이다.</p>
+      <h2>어떻게 찾았나</h2>
+      <p>기원전 300년경 유클리드가 『원론』에서 외중비로 정의했다. 선분을 위 조건대로 나누는 작도였고, 아름다움에 대한 주장은 없었다. 1202년 피보나치가 수열을 적었고, 나중에 케플러 등이 이웃 항의 비가 이 값으로 수렴한다는 것을 알아냈다.</p>
+      <p>“신성한 비례”라는 이름은 1509년 루카 파촐리의 『신성한 비례』에서 퍼졌다. 레오나르도 다빈치가 삽화를 그렸다. “황금분할”이라는 말은 19세기, 마르틴 옴이 1835년 무렵에 붙였다. 파르테논, 피라미드, 앵무조개, 모나리자가 황금비로 설계됐다는 이야기는 19–20세기에 퍼진 해석이 많다. 실측은 대략 비슷한 경우가 있고, 정확히 맞춘 설계 기록은 거의 없다.</p>
+      <h2>왜 보기 좋다고 하나</h2>
+      <p>수학적으로는 자기 자신으로만 정의되고, 정사각형을 떼도 같은 모양이 남으며, 연분수로 쓰면 1만 반복된다. 그래서 가장 단순하면서 가장 고르게 퍼지는 무리수처럼 읽힌다.</p>
+      <p>사람이 그 비율만 골라 좋아한다는 증거는 약하다. 19세기 구스타프 페히너 이후 직사각형 선호 실험에서는 대략 1.4에서 1.8 사이가 무난하다는 결과가 반복되고, 1.618 한 점이 압도적으로 이기지는 않는다. 익숙한 화면과 종이 비율, 균형, 반복되는 분할이 주는 안정감이 더 크게 작용한다.</p>
+      <p>계산과 자기유사성은 고대 기하학에서 정확히 나온 것이고, “보기 좋다”는 평가는 그 단정한 구조에 후대에 붙인 미감이다. 디자인에서 쓰면 균형 잡힌 출발점으로는 쓸 만하고, 그 숫자만 지키면 예뻐진다는 법칙은 아니다.</p>
+      <p>나라마다 보는 점이 다른 이유는 실측이 아니라 추측이다. 북유럽 매장의 큰 여백은 대상을 비워 둔 면 위에 혼자 앉힌다. 비어 있는 면이 인상을 만들어서, 네 변이 같고 여백이 내용보다 크다. 일본의 비례는 다다미나 간처럼 같은 단위가 반복되는 모듈에 가깝다. 여백과 안쪽, 큰 사각형과 남은 사각형이 한 비라서 맞물림이 보인다. 한국 배치는 그 모듈을 유지한 채 한 번 어긋난다. 규칙이 먼저 보이고, 어긋남이 선택으로 읽힌다.</p>
+      <h2>여백 특징</h2>
+      <p>매장이나 고서에서 잰 치수가 아니다. 빈 면이 한 장에서 어디에 앉는지를 적은 모형이다. 여백 계산에 φ를 쓰는 곳은 일본과 한국뿐이다.</p>
+      <table class="margin-table">
+        <thead><tr><th>지역</th><th>여백</th><th>느낌</th></tr></thead>
+        <tbody>
+          <tr><td>북유럽</td><td>네 변이 같다. 짧은 변의 1/4이라 빈 면이 내용보다 크고, 대상은 그 위에 혼자 앉는다.</td><td>고요 · 고독 · 정돈</td></tr>
+          <tr><td>북아메리카</td><td>좌우가 같고 위가 조금 넓다. 여백은 빈 인상이 아니라 그리드가 시작하는 칸이다.</td><td>명료 · 직선 · 기능</td></tr>
+          <tr><td>남미</td><td>여백이 좁고 가장자리가 먼저 찬다. 인상은 빈 면보다 테두리의 반복에서 온다.</td><td>밀집 · 반복 · 가장자리</td></tr>
+          <tr><td>중동</td><td>가장자리는 반복 단위로 가득하고, 비는 곳은 가운데다. 글은 오른쪽에서 시작한다.</td><td>틀 · 중심 · 반복</td></tr>
+          <tr><td>아프리카</td><td>무늬가 가장자리에서 끊기지 않는다. 여백은 바깥 프레임이 아니라 단위와 단위 사이의 간격이다.</td><td>리듬 · 연속 · 간격</td></tr>
+          <tr><td>유럽</td><td>안쪽과 위는 좁고, 바깥과 아래는 넓다. 글 덩어리는 광학 중심에 앉고, 분할은 φ가 아니라 쪽의 등분이다.</td><td>균형 · 무게 · 정중</td></tr>
+          <tr><td>한국</td><td>일본과 같은 안쪽을 유지한 채 가로로 a/φ, 세로로 a/φ²만큼 비튼다. 규칙이 먼저 보이고 어긋남이 남는다.</td><td>규칙 · 어긋남 · 선택</td></tr>
+          <tr><td>일본</td><td>위·왼쪽은 짧은 여백 a, 오른쪽·아래는 aφ다. 여백과 안쪽, 큰 사각형과 남은 사각형이 한 비로 맞물린다.</td><td>맞물림 · 절제 · 모듈</td></tr>
+          <tr><td>중국</td><td>위가 아래보다 크고 좌우는 더 좁다. 빈 면은 테두리가 아니라 위쪽에 남아 아래의 대상을 받친다.</td><td>위 · 받힘 · 여운</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </article>
+    ${siteFoot()}
+  `;
+  const saved = postStore(POST_KEY);
+  const title = app.querySelector(".post-head h1");
+  const body = app.querySelector(".post-body");
+  if (saved?.title) title.textContent = saved.title;
+  if (saved?.body) body.innerHTML = saved.body;
+  document.title = `${title.textContent} — Sensory Studio`;
+  bindPostEdit(POST_KEY, "황금비율");
+}
+
+function bindPostEdit(key, fallback) {
+  const article = app.querySelector(".post");
+  const pen = article.querySelector(".edit-pen");
+  const bar = article.querySelector(".edit-bar");
+  const form = article.querySelector(".post-pass");
+  const input = form.querySelector("input");
+  const note = form.querySelector(".post-pass-note");
+  const title = article.querySelector(".post-head h1");
+  const body = article.querySelector(".post-body");
+  let open = false;
+  let snapshot = null;
+
+  function readMode() {
+    open = false;
+    title.contentEditable = "false";
+    body.contentEditable = "false";
+    article.classList.remove("is-editing");
+    document.body.classList.remove("is-editing");
+    bar.hidden = true;
+    pen.hidden = false;
+  }
+
+  function unlock() {
+    snapshot = { title: title.textContent, body: body.innerHTML };
+    open = true;
+    article.classList.add("is-editing");
+    document.body.classList.add("is-editing");
+    title.contentEditable = "true";
+    body.contentEditable = "true";
+    form.hidden = true;
+    note.textContent = "";
+    bar.hidden = false;
+    pen.hidden = true;
+  }
+
+  pen.addEventListener("click", () => {
+    if (open) return;
+    form.hidden = false;
+    input.value = "";
+    note.textContent = "";
+    input.focus();
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (input.value === POST_PASS) unlock();
+    else {
+      note.textContent = "비밀번호가 다릅니다.";
+      input.select();
+    }
+  });
+
+  bar.querySelector(".edit-save").addEventListener("click", () => {
+    const nextTitle = title.textContent.trim() || fallback;
+    title.textContent = nextTitle;
+    localStorage.setItem(key, JSON.stringify({
+      title: nextTitle,
+      body: body.innerHTML,
+    }));
+    document.title = `${nextTitle} — Sensory Studio`;
+    readMode();
+  });
+
+  bar.querySelector(".edit-cancel").addEventListener("click", () => {
+    title.textContent = snapshot.title;
+    body.innerHTML = snapshot.body;
+    document.title = `${snapshot.title.trim() || fallback} — Sensory Studio`;
+    readMode();
+  });
+}
+
 function renderDetail(id) {
   const work = works.find((item) => item.id === id);
   if (!work) {
@@ -336,7 +731,7 @@ function renderDetail(id) {
               </span>
             </span>
           </button>
-          <figcaption><span>원본</span> 어린이가 그린 그림. 색, 형태, 반복 등에서 감각 키워드를 추출한다. 클릭하면 그림에 대한 설명이 나온다.</figcaption>
+          <figcaption><span>원본</span> ${work.theme === "geometry" ? "기하 예시. 원과 타원에서 감각 키워드를 뽑는다." : "어린이가 그린 그림. 색, 형태, 반복 등에서 감각 키워드를 추출한다."} 클릭하면 그림에 대한 설명이 나온다.</figcaption>
         </figure>
       </div>
     </article>
@@ -819,7 +1214,7 @@ function renderPerson() {
 }
 
 window.addEventListener("hashchange", route);
-fetch("scents.json")
+fetch("scents.json?v=2")
   .then((response) => response.json())
   .then((data) => {
     scents = data;

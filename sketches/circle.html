@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    html, body { margin: 0; background: #fff; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.3/lib/p5.min.js"></script>
+</head>
+<body>
+<script>
+let on = false;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  noFill();
+}
+
+function draw() {
+  background(255);
+  const t = on ? millis() * 0.001 : 0;
+  const pulse = on ? 1 + 0.045 * Math.sin(t * 1.4) : 1;
+  const sx = width / 1600;
+  const sy = height / 1200;
+  strokeWeight(18 * sx);
+  stroke("#171717");
+  ellipse(640 * sx, 560 * sy, 780 * sx * pulse, 780 * sy * pulse);
+  strokeWeight(16 * sx);
+  stroke("#c41766");
+  ellipse(1040 * sx, 720 * sy, 720 * sx * pulse, 440 * sy * pulse);
+}
+
+function mousePressed() {
+  on = !on;
+  return false;
+}
+
+function touchStarted() {
+  on = !on;
+  return false;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+</script>
+</body>
+</html>

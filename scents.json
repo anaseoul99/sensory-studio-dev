@@ -229,5 +229,18 @@
         "image": null
       }
     ]
+  },
+  "circle": {
+    "tags": ["Still", "Round", "Clear", "Quiet", "Wide"],
+    "matches": [
+      {
+        "nameEN": "Hinoki",
+        "nameKR": "히노키",
+        "category": "Woody",
+        "frDesc": "Still, Quiet, Clear, Woody, Dry, Green",
+        "summary": "히노키는 마른 나무와 맑은 공기가 같이 있는 향이다. 달지 않고, 여백이 넓은 형태와 맞는다.",
+        "image": null
+      }
+    ]
   }
 }
