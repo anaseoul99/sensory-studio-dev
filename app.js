@@ -496,6 +496,15 @@ function renderGolden() {
   const mid = 210 / 5;
   const eu = { left: 210 / 9, right: (2 * 210) / 9, top: 297 / 9, bottom: (2 * 297) / 9 };
   const cn = { left: 210 / 10, right: 210 / 10, top: 297 / 4, bottom: 297 / 8 };
+  const th = { left: 210 / 7, right: 210 / 7, top: 297 / 8, bottom: 297 / 10 };
+  const thBand = { left: th.left / 2, right: th.right / 2, top: th.top / 2, bottom: th.bottom / 2 };
+  const ru = { left: 210 / 8, right: 210 / 8, top: 210 / 8, bottom: 297 / 5 };
+  const oc = { left: 210 / 8, right: 210 / 8, top: (2 * 297) / 3, bottom: 297 / 12 };
+  const frameOf = (margins) => {
+    const width = 210 - margins.left - margins.right;
+    const height = 297 - margins.top - margins.bottom;
+    return `<rect x="${margins.left}" y="${margins.top}" width="${width}" height="${height}" fill="none" stroke="#5f5a54" stroke-width="0.6" />`;
+  };
   const africaGap = 14;
   const africaCols = 3;
   const africaRows = 4;
@@ -585,6 +594,25 @@ function renderGolden() {
       margins: cn,
       points: [...box(cn), [105, cn.top / 2]],
     },
+    {
+      title: "태국",
+      rule: "동남아. 좌우 W/7, 위 H/8, 아래 H/10. 가장자리는 한 겹 더 겹친다. + 네 개는 안쪽 모서리, 다섯은 중심.",
+      margins: th,
+      lines: `${frameOf(thBand)}${frameOf(th)}`,
+      points: [...box(th), [th.left + (210 - th.left - th.right) / 2, th.top + (297 - th.top - th.bottom) / 2]],
+    },
+    {
+      title: "러시아",
+      rule: "동유럽. 위·좌·우는 W/8, 아래는 H/5. + 네 개는 안쪽 모서리, 다섯은 글 덩어리의 중심.",
+      margins: ru,
+      points: [...box(ru), [ru.left + (210 - ru.left - ru.right) / 2, ru.top + (297 - ru.top - ru.bottom) / 2]],
+    },
+    {
+      title: "오세아니아",
+      rule: "좌우 W/8, 아래 H/12, 위는 페이지의 2/3를 비운다. + 네 개는 아래 칸의 모서리, 다섯은 비운 면의 중심.",
+      margins: oc,
+      points: [...box(oc), [105, oc.top / 2]],
+    },
   ];
   document.title = "황금비율 — Sensory Studio";
   app.innerHTML = `
@@ -607,7 +635,7 @@ function renderGolden() {
         <span class="post-pass-note"></span>
       </form>
       <div class="post-body">
-      <p>A4(210 × 297 mm)에 여백을 두는 계산이다. 북유럽은 네 변이 같은 큰 여백, 일본은 황금비로 맞춘 여백, 한국은 그 안쪽을 같은 크기로 두고 한 칸 비튼다. 북아메리카, 남미, 중동, 아프리카, 유럽, 중국도 같은 용지에 여백 모형과 + 다섯 개를 그렸다. 매장이나 고서에서 잰 치수가 아니라, 기하 작업을 위해 각 원칙을 한 장에 적용한 모형이다. 원점은 용지 왼쪽 위이고, 단위는 mm다. φ는 일본과 한국에만 쓴다.</p>
+      <p>A4(210 × 297 mm)에 여백을 두는 계산이다. 북유럽은 네 변이 같은 큰 여백, 일본은 황금비로 맞춘 여백, 한국은 그 안쪽을 같은 크기로 두고 한 칸 비튼다. 북아메리카, 남미, 중동, 아프리카, 유럽, 중국, 태국, 러시아, 오세아니아도 같은 용지에 여백 모형과 + 다섯 개를 그렸다. 매장이나 고서에서 잰 치수가 아니라, 기하 작업을 위해 각 원칙을 한 장에 적용한 모형이다. 원점은 용지 왼쪽 위이고, 단위는 mm다. φ는 일본과 한국에만 쓴다.</p>
       <div class="ratio-grid">
         ${sheets.map(ratioSheet).join("")}
       </div>
@@ -670,6 +698,9 @@ y′ = y + a / φ²</pre>
           <tr><td>한국</td><td>일본과 같은 안쪽을 유지한 채 가로로 a/φ, 세로로 a/φ²만큼 비튼다. 규칙이 먼저 보이고 어긋남이 남는다.</td><td>규칙 · 어긋남 · 선택</td></tr>
           <tr><td>일본</td><td>위·왼쪽은 짧은 여백 a, 오른쪽·아래는 aφ다. 여백과 안쪽, 큰 사각형과 남은 사각형이 한 비로 맞물린다.</td><td>맞물림 · 절제 · 모듈</td></tr>
           <tr><td>중국</td><td>위가 아래보다 크고 좌우는 더 좁다. 빈 면은 테두리가 아니라 위쪽에 남아 아래의 대상을 받친다.</td><td>위 · 받힘 · 여운</td></tr>
+          <tr><td>태국</td><td>좌우가 같고 위가 아래보다 조금 넓다. 가장자리는 띠가 한 겹 겹치고, 대상은 중심에 앉는다.</td><td>대칭 · 겹 · 중심</td></tr>
+          <tr><td>러시아</td><td>위와 좌우는 같고 아래가 두텁다. 글 덩어리는 틀 안에서 위로 앉는다.</td><td>무게 · 아래 · 틀</td></tr>
+          <tr><td>오세아니아</td><td>좌우는 보통이고 위 3분의 2는 비운다. 대상은 아래 칸에 낮게 앉는다.</td><td>수평 · 트임 · 낮음</td></tr>
         </tbody>
       </table>
       </div>
