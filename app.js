@@ -277,14 +277,62 @@ function renderProject() {
 
 function bindProjectRatios() {
   const root = document.querySelector(".ratio-switch");
+  const page = document.querySelector(".project-page");
   const copy = document.querySelector(".project-copy");
+  const mark = document.querySelector(".project-mark");
+  const side = document.querySelector(".project-side");
+  const clearPlace = (element) => {
+    element.style.left = "";
+    element.style.right = "";
+    element.style.top = "";
+    element.style.bottom = "";
+    element.style.height = "";
+    element.style.width = "";
+  };
   const draw = (index) => {
+    bindProjectRatios.index = index;
     const sheet = ratioSheets().find((item) => item.title === PROJECT_REGIONS[index]);
     const { left, right, top, bottom } = sheet.margins;
-    copy.style.left = `${(left / 210) * 100}%`;
-    copy.style.right = `${(right / 210) * 100}%`;
-    copy.style.top = `${(top / 297) * 100}%`;
-    copy.style.bottom = `${(bottom / 297) * 100}%`;
+    const pageW = page.clientWidth;
+    const pageH = page.clientHeight;
+    const l = (left / 210) * pageW;
+    const r = (right / 210) * pageW;
+    const t = (top / 297) * pageH;
+    const b = (bottom / 297) * pageH;
+    const boxH = pageH - t - b;
+    const tight = boxH < pageH * 0.42;
+    copy.classList.toggle("is-split", tight);
+    clearPlace(mark);
+    clearPlace(side);
+    if (!tight) {
+      copy.style.left = `${l}px`;
+      copy.style.right = `${r}px`;
+      copy.style.top = `${t}px`;
+      copy.style.bottom = `${b}px`;
+      side.style.zoom = "";
+    } else {
+      copy.style.left = "0";
+      copy.style.right = "0";
+      copy.style.top = "0";
+      copy.style.bottom = "0";
+      const maxSide = Math.max(180, pageH - b - 168);
+      const sideW = Math.min(280, Math.max(160, pageW - l - r));
+      side.style.zoom = "1";
+      side.style.left = "auto";
+      side.style.width = `${sideW}px`;
+      side.style.right = `${r}px`;
+      side.style.bottom = `${b}px`;
+      side.style.height = "auto";
+      const natural = side.scrollHeight;
+      const scale = Math.min(1, maxSide / natural);
+      side.style.zoom = String(scale);
+      const used = natural * scale;
+      const titleH = Math.max(140, pageH - b - used - 12);
+      mark.style.left = `${l}px`;
+      mark.style.right = `${r + sideW + 16}px`;
+      mark.style.top = "0";
+      mark.style.height = `${titleH}px`;
+    }
     root.querySelectorAll("button").forEach((button, buttonIndex) => {
       const on = buttonIndex === index;
       button.setAttribute("aria-pressed", on ? "true" : "false");
@@ -296,6 +344,9 @@ function bindProjectRatios() {
     if (!button || !root.contains(button)) return;
     draw(Number(button.dataset.index));
   });
+  if (bindProjectRatios.onResize) window.removeEventListener("resize", bindProjectRatios.onResize);
+  bindProjectRatios.onResize = () => draw(bindProjectRatios.index || 0);
+  window.addEventListener("resize", bindProjectRatios.onResize);
   draw(0);
 }
 

@@ -141,6 +141,18 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
 }
 .ratio-switch button:hover,
 .ratio-switch button[aria-pressed="true"] { color: var(--accent); }
+.project-copy.is-split {
+  display: block;
+  overflow: visible;
+  padding: 0;
+}
+.project-copy.is-split .project-mark,
+.project-copy.is-split .project-side {
+  position: absolute;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+}
 .project-mark {
   min-height: 0;
   min-width: 0;
