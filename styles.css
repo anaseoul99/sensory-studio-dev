@@ -110,15 +110,15 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
   align-items: stretch;
   overflow: hidden;
 }
-.project-page { position: relative; min-width: 0; height: 100%; }
+.project-page { position: relative; min-width: 0; height: 100%; container-type: size; }
 .project-copy {
   position: absolute;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 280px);
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: minmax(min-content, 1fr);
   gap: 16px;
   align-items: stretch;
-  overflow: hidden;
+  overflow: visible;
   padding: 8px 12px 12px;
 }
 .ratio-switch {
@@ -151,16 +151,16 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
   position: absolute;
   max-width: none;
   max-height: none;
-  overflow: visible;
 }
+.project-copy.is-split .project-mark { overflow: hidden; }
+.project-copy.is-split .project-side { overflow: visible; }
 .project-mark {
   min-height: 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  container-type: size;
-  overflow: hidden;
+  overflow: visible;
 }
 .display {
   margin: 0;
@@ -172,6 +172,8 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
 }
 .marquee {
   margin-top: 0;
+  width: 100%;
+  max-width: 100%;
   overflow: hidden;
   color: #e21878;
   font-size: min(21cqi, 16cqh);

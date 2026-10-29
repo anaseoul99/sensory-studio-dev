@@ -308,7 +308,7 @@ function bindProjectRatios() {
       copy.style.left = `${l}px`;
       copy.style.right = `${r}px`;
       copy.style.top = `${t}px`;
-      copy.style.bottom = `${b}px`;
+      copy.style.bottom = "0";
       side.style.zoom = "";
     } else {
       copy.style.left = "0";
@@ -326,12 +326,10 @@ function bindProjectRatios() {
       const natural = side.scrollHeight;
       const scale = Math.min(1, maxSide / natural);
       side.style.zoom = String(scale);
-      const used = natural * scale;
-      const titleH = Math.max(140, pageH - b - used - 12);
       mark.style.left = `${l}px`;
       mark.style.right = `${r + sideW + 16}px`;
       mark.style.top = "0";
-      mark.style.height = `${titleH}px`;
+      mark.style.height = "auto";
     }
     root.querySelectorAll("button").forEach((button, buttonIndex) => {
       const on = buttonIndex === index;
