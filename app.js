@@ -241,6 +241,19 @@ function route() {
   window.scrollTo(0, 0);
 }
 
+const SIDE_EN = {
+  lead: "Sensory Studio explores how visual information can be translated across different senses.",
+  source: "Beginning with children’s drawings as its first visual source, the project translates visual characteristics such as color, form, repetition, and density into interactive and olfactory experiences.",
+  ask: "How does an image change when experienced through another sense?",
+  modes: ["Visual", "Interactive", "Scent"],
+};
+const SIDE_AR = {
+  lead: "يستكشف سنسوري ستوديو كيف يمكن ترجمة المعلومات البصرية عبر حواس مختلفة.",
+  source: "يبدأ برسوم الأطفال كأول مصدر بصري، ويترجم خصائص بصرية مثل اللون والشكل والتكرار والكثافة إلى تجارب تفاعلية وشمّية.",
+  ask: "كيف تتغير الصورة حين تُعاش من خلال حاسة أخرى؟",
+  modes: ["بصري", "تفاعلي", "عطر"],
+};
+
 function renderProject() {
   document.title = "Sensory Studio";
   app.innerHTML = `
@@ -258,12 +271,12 @@ function renderProject() {
           <aside class="project-side">
             <img class="logo" src="images/logo.png" alt="" />
             <p class="year">© 2026</p>
-            <p class="lead"><strong>Sensory Studio explores how visual information can be translated across different senses.</strong></p>
-            <p class="lead">Beginning with children’s drawings as its first visual source, the project translates visual characteristics such as color, form, repetition, and density into interactive and olfactory experiences.</p>
+            <p class="lead" data-side="lead"><strong>Sensory Studio explores how visual information can be translated across different senses.</strong></p>
+            <p class="lead" data-side="source">Beginning with children’s drawings as its first visual source, the project translates visual characteristics such as color, form, repetition, and density into interactive and olfactory experiences.</p>
             <p class="lead">시각 정보를 인터랙션과 향으로 번역하며, 하나의 이미지가 다른 감각을 통과할 때 어떻게 다르게 경험되는지를 탐구한다.</p>
-            <p class="ask">How does an image change when experienced through another sense?</p>
+            <p class="ask" data-side="ask">How does an image change when experienced through another sense?</p>
             <p class="ask-ko">이미지는 다른 감각을 통과할 때 어떻게 다르게 경험되는가?</p>
-            <div class="modes"><span>Visual</span><span>Interactive</span><span>Scent</span></div>
+            <div class="modes" data-side="modes"><span>Visual</span><span>Interactive</span><span>Scent</span></div>
           </aside>
         </div>
       </div>
@@ -331,6 +344,15 @@ function bindProjectRatios() {
       mark.style.top = "0";
       mark.style.height = "auto";
     }
+    const arabic = PROJECT_REGIONS[index] === "중동";
+    const sideCopy = arabic ? SIDE_AR : SIDE_EN;
+    side.classList.toggle("is-ar", arabic);
+    side.querySelector("[data-side='lead'] strong").textContent = sideCopy.lead;
+    side.querySelector("[data-side='source']").textContent = sideCopy.source;
+    side.querySelector("[data-side='ask']").textContent = sideCopy.ask;
+    side.querySelectorAll("[data-side='modes'] span").forEach((span, spanIndex) => {
+      span.textContent = sideCopy.modes[spanIndex];
+    });
     root.querySelectorAll("button").forEach((button, buttonIndex) => {
       const on = buttonIndex === index;
       button.setAttribute("aria-pressed", on ? "true" : "false");

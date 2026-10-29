@@ -231,6 +231,14 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
 }
 .ask { color: #e21878; font-weight: 500; }
 .ask-ko { color: var(--ink); margin-bottom: 0; }
+.project-side.is-ar [data-side] {
+  direction: rtl;
+  text-align: right;
+  font-family: "Noto Naskh Arabic", "Geeza Pro", sans-serif;
+  word-break: normal;
+  letter-spacing: 0;
+}
+.project-side.is-ar .modes { align-items: flex-start; text-transform: none; }
 .modes {
   display: flex;
   flex-direction: column;
