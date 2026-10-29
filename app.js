@@ -234,6 +234,7 @@ function route() {
   else if (section === "work") renderWork();
   else if (section === "reference" && parts[1] === "golden") renderGolden();
   else if (section === "reference" && parts[1] === "irrational") renderIrrational();
+  else if (section === "reference" && parts[1] === "interlude") renderInterlude();
   else if (section === "reference") renderReference();
   else if (section === "person") renderPerson();
   else renderProject();
@@ -314,6 +315,8 @@ function workCard(work) {
 const POST_PASS = "1111";
 const POST_KEY = "sensory-post-golden";
 const IRRATIONAL_KEY = "sensory-post-irrational";
+const INTERLUDE_KEY = "sensory-post-interlude";
+const INTERLUDE_URL = "https://interlude.crnacura.workers.dev";
 
 function postStore(key) {
   try {
@@ -326,8 +329,10 @@ function postStore(key) {
 function renderReference() {
   const saved = postStore(POST_KEY);
   const irrational = postStore(IRRATIONAL_KEY);
+  const interlude = postStore(INTERLUDE_KEY);
   const title = saved?.title || "황금비율";
   const irrationalTitle = irrational?.title || "무리수에 관하여";
+  const interludeTitle = interlude?.title || "Interlude";
   document.title = "Reference — Sensory Studio";
   app.innerHTML = `
     <section class="board-page">
@@ -343,6 +348,10 @@ function renderReference() {
           <tr>
             <td>2</td>
             <td><a href="#/reference/irrational">${esc(irrationalTitle)}</a></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#/reference/interlude">${esc(interludeTitle)}</a></td>
           </tr>
         </tbody>
       </table>
@@ -421,6 +430,47 @@ function irrationalLine() {
         ${row(y3, 1.1, 1.2, 0.01, [1.1, 1.11, 1.12, 1.13, 1.2])}
       </svg>
     </figure>`;
+}
+
+function renderInterlude() {
+  document.title = "Interlude — Sensory Studio";
+  app.innerHTML = `
+    <article class="post post-live">
+      <a class="back" href="#/reference">목록</a>
+      <div class="post-head">
+        <h1>Interlude</h1>
+        <span class="post-by">관리자</span>
+        <button type="button" class="edit-pen" aria-label="수정">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13 7l4 4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+        </button>
+      </div>
+      <div class="edit-bar" hidden>
+        <button type="button" class="edit-cancel">취소</button>
+        <button type="button" class="edit-save">저장</button>
+      </div>
+      <form class="post-pass" hidden>
+        <input type="password" autocomplete="current-password" aria-label="비밀번호" />
+        <button type="submit">확인</button>
+        <span class="post-pass-note"></span>
+      </form>
+      <figure class="post-frame">
+        <iframe title="Interlude" src="${INTERLUDE_URL}" allow="fullscreen"></iframe>
+        <figcaption>인터랙션</figcaption>
+      </figure>
+      <div class="post-body">
+        <p>페이지가 넘어갈 때의 전환이다. 커튼, 닦기, 원, 셰이더를 눌러 본다.</p>
+        <p><a href="${INTERLUDE_URL}" target="_blank" rel="noopener noreferrer">${INTERLUDE_URL}</a></p>
+      </div>
+    </article>
+    ${siteFoot()}
+  `;
+  const saved = postStore(INTERLUDE_KEY);
+  const title = app.querySelector(".post-head h1");
+  const body = app.querySelector(".post-body");
+  if (saved?.title) title.textContent = saved.title;
+  if (saved?.body) body.innerHTML = saved.body;
+  document.title = `${title.textContent} — Sensory Studio`;
+  bindPostEdit(INTERLUDE_KEY, "Interlude");
 }
 
 function renderIrrational() {

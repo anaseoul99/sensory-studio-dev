@@ -201,6 +201,11 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
 .work, .detail, .board-page, .post { padding: 16px 24px 40px; }
 .board-page, .post { width: min(40rem, calc(100% - 48px)); max-width: 40rem; margin-inline: auto; }
 .post-ratio { width: min(52rem, calc(100% - 48px)); max-width: 52rem; }
+.post-live { width: min(72rem, calc(100% - 48px)); max-width: 72rem; }
+.post-frame { margin: 0 0 16px; }
+.post-frame iframe { display: block; width: 100%; height: min(78vh, 820px); border: 0; background: #fff; }
+.post-frame figcaption { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+.post-body a { color: var(--accent); }
 .board-page h1, .post h1 { margin: 0 0 10px; font-size: 13px; font-weight: 560; letter-spacing: 0; }
 .post-ratio h1 { margin: 14px 0 16px; font-size: 2rem; letter-spacing: -0.03em; }
 .post h1 { margin-top: 10px; }
