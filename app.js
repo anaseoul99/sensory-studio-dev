@@ -246,10 +246,17 @@ function renderProject() {
   app.innerHTML = `
     <section class="project">
       <div class="project-title">
-        <h1 class="display">Visual<br />To<br />Scent</h1>
-        <div class="marquee">
-          <div class="marquee-track">
-            <span>Sensory Studio</span><span>Sensory Studio</span><span>Sensory Studio</span><span>Sensory Studio</span>
+        <div class="ratio-switch" role="group" aria-label="황금비율 배치">
+          ${PROJECT_REGIONS.map((region, index) => `<button type="button" data-index="${index}" aria-pressed="false">${index + 1}</button>`).join("")}
+        </div>
+        <p class="project-region"></p>
+        <div class="project-sheet"></div>
+        <div class="project-mark">
+          <h1 class="display">Visual<br />To<br />Scent</h1>
+          <div class="marquee">
+            <div class="marquee-track">
+              <span>Sensory Studio</span><span>Sensory Studio</span><span>Sensory Studio</span><span>Sensory Studio</span>
+            </div>
           </div>
         </div>
       </div>
@@ -265,6 +272,29 @@ function renderProject() {
       </aside>
     </section>
   `;
+  bindProjectRatios();
+}
+
+function bindProjectRatios() {
+  const root = document.querySelector(".ratio-switch");
+  const slot = document.querySelector(".project-sheet");
+  const name = document.querySelector(".project-region");
+  const draw = (index) => {
+    const sheet = ratioSheets().find((item) => item.title === PROJECT_REGIONS[index]);
+    slot.innerHTML = ratioSheet(sheet);
+    name.textContent = `${index + 1} ${sheet.title}`;
+    root.querySelectorAll("button").forEach((button, buttonIndex) => {
+      const on = buttonIndex === index;
+      button.setAttribute("aria-pressed", on ? "true" : "false");
+      button.setAttribute("aria-label", `${buttonIndex + 1} ${PROJECT_REGIONS[buttonIndex]}`);
+    });
+  };
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button || !root.contains(button)) return;
+    draw(Number(button.dataset.index));
+  });
+  draw(0);
 }
 
 function renderWork() {
@@ -515,7 +545,7 @@ function renderIrrational() {
   bindPostEdit(IRRATIONAL_KEY, "무리수에 관하여");
 }
 
-function renderGolden() {
+function ratioSheets() {
   const phi = (1 + Math.sqrt(5)) / 2;
   const a = 210 - 297 / phi;
   const far = a * phi;
@@ -664,6 +694,13 @@ function renderGolden() {
       points: [...box(oc), [105, oc.top / 2]],
     },
   ];
+  return sheets;
+}
+
+const PROJECT_REGIONS = ["한국", "일본", "북유럽", "북아메리카", "남미", "중동", "아프리카", "유럽", "중국", "태국", "러시아", "오세아니아"];
+
+function renderGolden() {
+  const sheets = ratioSheets();
   document.title = "황금비율 — Sensory Studio";
   app.innerHTML = `
     <article class="post post-ratio">

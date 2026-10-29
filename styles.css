@@ -118,6 +118,32 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  gap: 8px;
+}
+.ratio-switch { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-top: 8px; }
+.ratio-switch button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 20px;
+  font-weight: 560;
+  color: var(--ink);
+  cursor: pointer;
+}
+.ratio-switch button:hover,
+.ratio-switch button[aria-pressed="true"] { color: var(--accent); }
+.project-region { margin: 0; font-size: 13px; color: var(--muted); }
+.project-sheet { width: 132px; }
+.project-sheet .ratio-sheet figcaption { margin: 0; }
+.project-sheet .ratio-meta,
+.project-sheet .point-table { display: none; }
+.project-mark {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   container-type: size;
 }
 .display {
