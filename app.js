@@ -245,31 +245,31 @@ function renderProject() {
   document.title = "Sensory Studio";
   app.innerHTML = `
     <section class="project">
-      <div class="project-title">
-        <div class="ratio-switch" role="group" aria-label="황금비율 배치">
-          ${PROJECT_REGIONS.map((region, index) => `<button type="button" data-index="${index}" aria-pressed="false">${index + 1}</button>`).join("")}
-        </div>
-        <p class="project-region"></p>
-        <div class="project-sheet"></div>
-        <div class="project-mark">
-          <h1 class="display">Visual<br />To<br />Scent</h1>
-          <div class="marquee">
-            <div class="marquee-track">
-              <span>Sensory Studio</span><span>Sensory Studio</span><span>Sensory Studio</span><span>Sensory Studio</span>
+      <div class="project-page">
+        <div class="project-copy">
+          <div class="project-mark">
+            <h1 class="display">Visual<br />To<br />Scent</h1>
+            <div class="marquee">
+              <div class="marquee-track">
+                <span>Sensory Studio</span><span>Sensory Studio</span><span>Sensory Studio</span><span>Sensory Studio</span>
+              </div>
             </div>
           </div>
+          <aside class="project-side">
+            <img class="logo" src="images/logo.png" alt="" />
+            <p class="year">© 2026</p>
+            <p class="lead"><strong>Sensory Studio explores how visual information can be translated across different senses.</strong></p>
+            <p class="lead">Beginning with children’s drawings as its first visual source, the project translates visual characteristics such as color, form, repetition, and density into interactive and olfactory experiences.</p>
+            <p class="lead">시각 정보를 인터랙션과 향으로 번역하며, 하나의 이미지가 다른 감각을 통과할 때 어떻게 다르게 경험되는지를 탐구한다.</p>
+            <p class="ask">How does an image change when experienced through another sense?</p>
+            <p class="ask-ko">이미지는 다른 감각을 통과할 때 어떻게 다르게 경험되는가?</p>
+            <div class="modes"><span>Visual</span><span>Interactive</span><span>Scent</span></div>
+          </aside>
         </div>
       </div>
-      <aside class="project-side">
-        <img class="logo" src="images/logo.png" alt="" />
-        <p class="year">© 2026</p>
-        <p class="lead"><strong>Sensory Studio explores how visual information can be translated across different senses.</strong></p>
-        <p class="lead">Beginning with children’s drawings as its first visual source, the project translates visual characteristics such as color, form, repetition, and density into interactive and olfactory experiences.</p>
-        <p class="lead">시각 정보를 인터랙션과 향으로 번역하며, 하나의 이미지가 다른 감각을 통과할 때 어떻게 다르게 경험되는지를 탐구한다.</p>
-        <p class="ask">How does an image change when experienced through another sense?</p>
-        <p class="ask-ko">이미지는 다른 감각을 통과할 때 어떻게 다르게 경험되는가?</p>
-        <div class="modes"><span>Visual</span><span>Interactive</span><span>Scent</span></div>
-      </aside>
+      <div class="ratio-switch" role="group" aria-label="글 배치">
+        ${PROJECT_REGIONS.map((region, index) => `<button type="button" data-index="${index}" aria-pressed="false">${index + 1}</button>`).join("")}
+      </div>
     </section>
   `;
   bindProjectRatios();
@@ -277,12 +277,14 @@ function renderProject() {
 
 function bindProjectRatios() {
   const root = document.querySelector(".ratio-switch");
-  const slot = document.querySelector(".project-sheet");
-  const name = document.querySelector(".project-region");
+  const copy = document.querySelector(".project-copy");
   const draw = (index) => {
     const sheet = ratioSheets().find((item) => item.title === PROJECT_REGIONS[index]);
-    slot.innerHTML = ratioSheet(sheet);
-    name.textContent = `${index + 1} ${sheet.title}`;
+    const { left, right, top, bottom } = sheet.margins;
+    copy.style.left = `${(left / 210) * 100}%`;
+    copy.style.right = `${(right / 210) * 100}%`;
+    copy.style.top = `${(top / 297) * 100}%`;
+    copy.style.bottom = `${(bottom / 297) * 100}%`;
     root.querySelectorAll("button").forEach((button, buttonIndex) => {
       const on = buttonIndex === index;
       button.setAttribute("aria-pressed", on ? "true" : "false");

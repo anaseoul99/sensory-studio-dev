@@ -106,45 +106,49 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
   height: calc(100dvh - var(--header));
   min-height: calc(100dvh - var(--header));
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
-  gap: 16px;
-  padding: 0 20px 12px 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: stretch;
   overflow: hidden;
 }
-.project-title {
-  min-width: 0;
-  height: 100%;
+.project-page { position: relative; min-width: 0; height: 100%; }
+.project-copy {
+  position: absolute;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 280px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+  overflow: hidden;
+  padding: 8px 12px 12px;
+}
+.ratio-switch {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 8px;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 10px 16px 0 8px;
 }
-.ratio-switch { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-top: 8px; }
 .ratio-switch button {
   border: 0;
   background: none;
   padding: 0;
   font: inherit;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 560;
+  line-height: 1.35;
   color: var(--ink);
   cursor: pointer;
 }
 .ratio-switch button:hover,
 .ratio-switch button[aria-pressed="true"] { color: var(--accent); }
-.project-region { margin: 0; font-size: 13px; color: var(--muted); }
-.project-sheet { width: 132px; }
-.project-sheet .ratio-sheet figcaption { margin: 0; }
-.project-sheet .ratio-meta,
-.project-sheet .point-table { display: none; }
 .project-mark {
-  flex: 1;
   min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   container-type: size;
+  overflow: hidden;
 }
 .display {
   margin: 0;
@@ -181,9 +185,13 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  max-width: 300px;
-  margin-left: auto;
-  padding: 6px 0 28px;
+  justify-content: flex-start;
+  max-width: 280px;
+  max-height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
 }
 .logo { width: 46px; height: auto; display: block; }
 .project-side .year {
@@ -1140,8 +1148,10 @@ body[data-page="person"] .note { color: #8d8d8d; }
 
 @media (max-width: 900px) {
   .project, .detail, .cols { grid-template-columns: 1fr; }
-  .project { height: auto; align-items: start; min-height: 0; padding: 8px 16px 24px; overflow: visible; }
-  .project-title { height: auto; container-type: normal; }
+  .project { grid-template-columns: 1fr; height: auto; min-height: calc(100dvh - var(--header)); padding: 0 0 16px; overflow: visible; }
+  .project-page { height: calc(100dvh - var(--header) - 52px); }
+  .project-copy { display: flex; flex-direction: column; align-items: flex-start; }
+  .ratio-switch { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; gap: 8px 12px; padding: 8px 16px 0; }
   .display { font-size: clamp(3.2rem, 15vw, 4.6rem); line-height: 0.95; }
   .marquee { font-size: clamp(2.4rem, 11vw, 3.6rem); }
   .project-side { margin-left: 0; max-width: 28em; }
