@@ -1538,7 +1538,50 @@ function renderPerson() {
   });
 }
 
-window.addEventListener("hashchange", route);
+function paintFrame(node) {
+  const bodyStyle = getComputedStyle(document.body);
+  node.style.background = bodyStyle.backgroundColor;
+  node.style.color = bodyStyle.color;
+  const header = document.querySelector(".top");
+  const headerCopy = header.cloneNode(true);
+  const headerStyle = getComputedStyle(header);
+  headerCopy.style.background = headerStyle.backgroundColor;
+  headerCopy.style.color = headerStyle.color;
+  const appCopy = app.cloneNode(true);
+  appCopy.querySelectorAll("audio").forEach((audio) => audio.remove());
+  node.append(headerCopy, appCopy);
+}
+
+function frameNavigate(render) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) {
+    render();
+    return;
+  }
+  document.querySelector(".frame-layer")?.remove();
+  const layer = document.createElement("div");
+  layer.className = "frame-layer";
+  const old = document.createElement("div");
+  old.className = "frame-old";
+  const pink = document.createElement("div");
+  pink.className = "frame-pink";
+  const view = document.createElement("div");
+  view.className = "frame-view";
+  paintFrame(old);
+  layer.append(old, pink, view);
+  document.body.append(layer);
+  render();
+  paintFrame(view);
+  const side = ((1 - 0.3) / 2) * 100;
+  const small = `inset(50% ${side}% 50% ${side}%)`;
+  const full = "inset(0% 0% 0% 0%)";
+  const grow = { duration: 1200, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "both" };
+  pink.animate([{ clipPath: small }, { clipPath: full }], grow);
+  const reveal = view.animate([{ clipPath: small }, { clipPath: full }], { ...grow, delay: 150 });
+  reveal.onfinish = () => layer.remove();
+}
+
+window.addEventListener("hashchange", () => frameNavigate(route));
 fetch("scents.json?v=2")
   .then((response) => response.json())
   .then((data) => {

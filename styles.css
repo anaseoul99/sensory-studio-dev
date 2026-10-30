@@ -158,6 +158,13 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
 .ratio-copy .work,
 .ratio-copy .board-page,
 .ratio-copy .person { padding: 4px 0 16px; width: 100%; max-width: none; margin: 0; }
+.frame-layer { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+.frame-old, .frame-pink, .frame-view { position: absolute; inset: 0; overflow: hidden; }
+.frame-old, .frame-view { display: flex; flex-direction: column; }
+.frame-pink { background: var(--accent); clip-path: inset(50% 35% 50% 35%); }
+.frame-view { clip-path: inset(50% 35% 50% 35%); }
+.frame-old .top, .frame-view .top { position: relative; flex: none; }
+.frame-old #app, .frame-view #app { flex: 1; min-height: 0; }
 body[data-page="person"] .ratio-switch button { color: #f4f1ea; }
 body[data-page="person"] .ratio-switch button:hover,
 body[data-page="person"] .ratio-switch button[aria-pressed="true"] { color: var(--accent); }
