@@ -1015,7 +1015,7 @@ function renderDetail(id) {
   const found = lookup(work.id);
   const first = found.matches[0];
   document.title = `${work.title} — Sensory Studio`;
-  app.innerHTML = `
+  app.innerHTML = withRatio(`
     <article class="detail">
       <div>
         <a class="back" href="#/work/${work.theme || "children"}">← ${esc(themes.find((theme) => theme.id === work.theme)?.label || "Work")}</a>
@@ -1065,7 +1065,8 @@ function renderDetail(id) {
       </div>
     </article>
     ${siteFoot()}
-  `;
+  `);
+  bindRatioFrame();
   bindSoundModal(work, first);
   typeDetailLogic();
   bindJumps();

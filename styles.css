@@ -157,6 +157,7 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
 }
 .ratio-copy .work,
 .ratio-copy .board-page,
+.ratio-copy .detail,
 .ratio-copy .person { padding: 4px 0 16px; width: 100%; max-width: none; margin: 0; }
 .ratio-copy .person { padding-bottom: 36px; }
 .ratio-copy .person .logic-stack {
