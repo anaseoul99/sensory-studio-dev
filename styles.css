@@ -158,6 +158,17 @@ body[data-page="project"] .top { background: #fff; border-bottom-color: transpar
 .ratio-copy .work,
 .ratio-copy .board-page,
 .ratio-copy .person { padding: 4px 0 16px; width: 100%; max-width: none; margin: 0; }
+.ratio-copy .person { padding-bottom: 36px; }
+.ratio-copy .person .logic-stack {
+  position: static;
+  right: auto;
+  bottom: auto;
+  grid-column: 1 / -1;
+  justify-self: end;
+  width: 220px;
+  margin: 18px 8px 0 0;
+  transform: none;
+}
 .frame-layer { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
 .frame-old, .frame-pink, .frame-view { position: absolute; inset: 0; overflow: hidden; }
 .frame-old, .frame-view { display: flex; flex-direction: column; }

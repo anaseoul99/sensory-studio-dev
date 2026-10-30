@@ -399,10 +399,16 @@ function bindRatioFrame() {
     const { left, right, top, bottom } = sheet.margins;
     const pageW = page.clientWidth;
     const pageH = page.clientHeight;
+    const bottomPx = (bottom / 297) * pageH;
     copy.style.left = `${(left / 210) * pageW}px`;
     copy.style.right = `${(right / 210) * pageW}px`;
+    copy.style.bottom = `${bottomPx}px`;
     copy.style.top = `${(top / 297) * pageH}px`;
-    copy.style.bottom = `${(bottom / 297) * pageH}px`;
+    const room = pageH - bottomPx - 8;
+    if (copy.scrollHeight > copy.clientHeight + 2) {
+      const height = Math.min(copy.scrollHeight, room);
+      copy.style.top = `${pageH - bottomPx - height}px`;
+    }
     root.querySelectorAll("button").forEach((button, buttonIndex) => {
       const on = buttonIndex === index;
       button.setAttribute("aria-pressed", on ? "true" : "false");
