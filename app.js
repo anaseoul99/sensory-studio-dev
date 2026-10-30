@@ -303,6 +303,7 @@ function bindProjectRatios() {
     element.style.width = "";
   };
   const draw = (index) => {
+    if (!page.isConnected) return;
     bindProjectRatios.index = index;
     const sheet = ratioSheets().find((item) => item.title === PROJECT_REGIONS[index]);
     const { left, right, top, bottom } = sheet.margins;
@@ -323,6 +324,8 @@ function bindProjectRatios() {
       copy.style.top = `${t}px`;
       copy.style.bottom = "0";
       side.style.zoom = "";
+      const spill = mark.querySelector(".marquee").getBoundingClientRect().bottom - page.getBoundingClientRect().bottom + 10;
+      if (spill > 1) copy.style.top = `${Math.max(0, t - spill)}px`;
     } else {
       copy.style.left = "0";
       copy.style.right = "0";
@@ -370,23 +373,71 @@ function bindProjectRatios() {
   draw(0);
 }
 
+function ratioButtons() {
+  return `<div class="ratio-switch" role="group" aria-label="글 배치">${PROJECT_REGIONS.map((region, index) => `<button type="button" data-index="${index}" aria-pressed="false">${index + 1}</button>`).join("")}</div>`;
+}
+
+function withRatio(inner) {
+  return `
+    <section class="ratio-stage">
+      <div class="ratio-page"><div class="ratio-copy">${inner}</div></div>
+      ${ratioButtons()}
+    </section>
+  `;
+}
+
+function bindRatioFrame() {
+  const stage = document.querySelector(".ratio-stage");
+  const root = stage?.querySelector(".ratio-switch");
+  const page = stage?.querySelector(".ratio-page");
+  const copy = stage?.querySelector(".ratio-copy");
+  if (!root || !page || !copy) return;
+  const draw = (index) => {
+    if (!page.isConnected) return;
+    bindRatioFrame.index = index;
+    const sheet = ratioSheets().find((item) => item.title === PROJECT_REGIONS[index]);
+    const { left, right, top, bottom } = sheet.margins;
+    const pageW = page.clientWidth;
+    const pageH = page.clientHeight;
+    copy.style.left = `${(left / 210) * pageW}px`;
+    copy.style.right = `${(right / 210) * pageW}px`;
+    copy.style.top = `${(top / 297) * pageH}px`;
+    copy.style.bottom = `${(bottom / 297) * pageH}px`;
+    root.querySelectorAll("button").forEach((button, buttonIndex) => {
+      const on = buttonIndex === index;
+      button.setAttribute("aria-pressed", on ? "true" : "false");
+      button.setAttribute("aria-label", `${buttonIndex + 1} ${PROJECT_REGIONS[buttonIndex]}`);
+    });
+  };
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button || !root.contains(button)) return;
+    draw(Number(button.dataset.index));
+  });
+  if (bindRatioFrame.onResize) window.removeEventListener("resize", bindRatioFrame.onResize);
+  bindRatioFrame.onResize = () => draw(bindRatioFrame.index || 0);
+  window.addEventListener("resize", bindRatioFrame.onResize);
+  draw(0);
+}
+
 function renderWork() {
   document.title = "Work — Sensory Studio";
-  app.innerHTML = `
+  app.innerHTML = withRatio(`
     <section class="work">
       <nav class="themes" aria-label="테마">
         ${themes.map((theme) => `<a href="#/work/${theme.id}">${esc(theme.label)}</a>`).join("")}
       </nav>
     </section>
     ${siteFoot()}
-  `;
+  `);
+  bindRatioFrame();
 }
 
 function renderTheme(id) {
   const theme = themes.find((item) => item.id === id);
   const list = works.filter((work) => work.theme === id);
   document.title = `${theme.label} — Sensory Studio`;
-  app.innerHTML = `
+  app.innerHTML = withRatio(`
     <section class="work">
       <div class="work-head">
         <nav class="crumb" aria-label="카테고리">
@@ -397,7 +448,8 @@ function renderTheme(id) {
       ${list.length ? `<div class="grid">${list.map(workCard).join("")}</div>` : `<p class="theme-empty">아직 올린 작품이 없다.</p>`}
     </section>
     ${siteFoot()}
-  `;
+  `);
+  bindRatioFrame();
 }
 
 function workCard(work) {
@@ -437,7 +489,7 @@ function renderReference() {
   const irrationalTitle = irrational?.title || "무리수에 관하여";
   const interludeTitle = interlude?.title || "Interlude";
   document.title = "Reference — Sensory Studio";
-  app.innerHTML = `
+  app.innerHTML = withRatio(`
     <section class="board-page">
       <table class="board">
         <thead>
@@ -460,7 +512,8 @@ function renderReference() {
       </table>
     </section>
     ${siteFoot()}
-  `;
+  `);
+  bindRatioFrame();
 }
 
 function mm1(n) {
@@ -1381,7 +1434,7 @@ function liftPersonSheet(sheet) {
 
 function renderPerson() {
   document.title = "Person — Sensory Studio";
-  app.innerHTML = `
+  app.innerHTML = withRatio(`
     <section class="person">
         <div class="self">
           <div class="turn">
@@ -1465,10 +1518,12 @@ function renderPerson() {
       </div>
     </section>
     ${siteFoot()}
+  `) + `
     <audio id="site-bgm" preload="auto">
       <source src="audio/person.mp3" type="audio/mpeg" />
     </audio>
   `;
+  bindRatioFrame();
   bindPersonSheet();
   const audio = document.getElementById("site-bgm");
   if (!audio) return;
